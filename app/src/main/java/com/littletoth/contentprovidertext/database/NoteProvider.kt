@@ -38,7 +38,7 @@ class NoteProvider : ContentProvider() {
 
     }
 
-    override fun getType(uri: Uri): String? = throw UnsupportedSchemeException()
+    override fun getType(uri: Uri): String? = throw UnsupportedSchemeException("Uri não implementada")
 
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
