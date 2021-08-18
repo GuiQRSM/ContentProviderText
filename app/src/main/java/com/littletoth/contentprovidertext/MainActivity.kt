@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.BaseColumns._ID
+import androidx.lifecycle.ViewModelProvider
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -25,15 +26,19 @@ class MainActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> 
         setContentView(R.layout.activity_main)
 
         noteAdd = findViewById(R.id.note_add)
-        noteAdd.setOnClickListener {}
+        noteAdd.setOnClickListener {
+            NotesDetailFragment().show(supportFragmentManager, "dialog")
+        }
         adapter = NotesAdapter(object: NoteClickedListener {
             override fun noteClickedItem(cursor: Cursor) {
                val id: Long = cursor.getLong(cursor.getColumnIndex(_ID))
+                val fragment = NotesDetailFragment.newInstace(id)
+                fragment.show(supportFragmentManager, "dialog")
             }
 
             override fun noteRemoveItem(cursor: Cursor?) {
                 val id: Long? = cursor?.getLong(cursor.getColumnIndex(_ID))
-                contentResolver.delete(Uri.withAppendedPath(URI_NOTES, id.toString()), null, null))
+                contentResolver.delete(Uri.withAppendedPath(URI_NOTES, id.toString()), null, null)
             }
 
         })
@@ -42,6 +47,8 @@ class MainActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> 
         noteRecyclerView = findViewById(R.id.notes_recycler)
         noteRecyclerView.layoutManager = LinearLayoutManager(this)
         noteRecyclerView.adapter = adapter
+
+        LoaderManager.getInstance(this).initLoader(0, null, this)
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> =
@@ -49,12 +56,12 @@ class MainActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> 
 
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
         if(data != null) {
-
+           adapter.setCursor(data)
         }
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
-
+          adapter.setCursor(null)
     }
 
 }
